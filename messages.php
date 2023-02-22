@@ -4,26 +4,26 @@ include('connection.php');
 
 if (isset($_GET['view_id'])) {
     $_SESSION['view_id'] = $_GET['view_id'];
-    header("location: viewvacancy.php");
+    header("location: view.php");
 } elseif (isset($_GET['edit_id'])) {
     $_SESSION['edit_id'] = $_GET['edit_id'];
-    header("location: editvacancy.php");
+    header("location: edit.php");
 } elseif (isset($_GET['del_id'])) {
     $id =  $_GET['del_id'];
 
-    $query = "SELECT * FROM `vacancies` WHERE `v_id` = $id";
+    $query = "SELECT * FROM `blog` WHERE `blog_id` = $id";
     //running the query
-    // $run = mysqli_query($conn, $query);
-    // $row = mysqli_fetch_assoc($run);
-    // $image = $row['image'];
-    // unlink("images/$image");
+    $run = mysqli_query($conn, $query);
+    $row = mysqli_fetch_assoc($run);
+    $image = $row['image'];
+    unlink("images/$image");
 
-    $insert = "DELETE FROM `vacancies` WHERE `v_id` = $id";
+    $insert = "DELETE FROM `messages` WHERE `msg_id` = $id";
 
     if (mysqli_query($conn, $insert)) {
-        $msg = "vacancy deleted! ";
+        $msg = "Message deleted! ";
     } else {
-        $msg2 = "Couldn't delete Vacancy!";
+        $msg2 = "Couldn't delete Message!";
     }
 }
 ?>
@@ -36,7 +36,7 @@ if (isset($_GET['view_id'])) {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="Content-Language" content="en">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>WOLREC: Projects</title>
+    <title>Dronex: Blog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" />
     <meta name="msapplication-tap-highlight" content="no">
     <link href="./main.css" rel="stylesheet">
@@ -461,6 +461,7 @@ if (isset($_GET['view_id'])) {
                     </div>
                 </div>
  <!-- Dashboard end -->
+
                 <!-- content -->
 
             </div>
@@ -473,18 +474,18 @@ if (isset($_GET['view_id'])) {
                                     <i class="pe-7s-display2 icon-gradient bg-sunny-morning">
                                     </i>
                                 </div>
-                                <div>Projects
-                                    <div class="page-title-subheading">Add, view, edit and delete Vacancies.
+                                <div>Messages
+                                    <div class="page-title-subheading">views and delete Messages.
                                     </div>
                                 </div>
                             </div>
                             <div class="page-title-actions">
-                                <a href="addvacancy.php" class="btn-shadow btn btn-info">
+                                <!-- <a href="upload.php" class="btn-shadow btn btn-info">
                                     <span class="btn-icon-wrapper pr-2 opacity-7">
                                         <i class="fa fa-upload fa-w-20"></i>
                                     </span>
-                                    Add Vacancy
-                                </a>
+                                    Add Blog
+                                </a> -->
                             </div>
                         </div>
                     </div>
@@ -505,20 +506,15 @@ if (isset($_GET['view_id'])) {
                             <?php } else {
                             } ?>
                             <div class="main-card mb-3 card">
-                                <div class="card-header">Projects
+                                <div class="card-header">Messages
                                 </div>
                                 <div class="table-responsive">
                                     <table class="align-middle mb-0 table table-borderless table-striped table-hover">
                                         <thead>
                                             <tr>
                                                 <th>#</th>
-                                                <th>position</th>
-                                              
-                                                <th>location</th>
-                                                <th>closing data</th>
-                                                
-                                                <th>Created</th>
-
+                                                <th>Subject & Sender</th>
+                                                <th>Date</th>
                                                 <th>Actions</th>
                                             </tr>
                                         </thead>
@@ -534,36 +530,26 @@ if (isset($_GET['view_id'])) {
 
                                                 $page1 = ($page * 5) - 5;
                                             }
-                                            $query = "SELECT * FROM vacancies ORDER BY v_id desc limit $page1,5";
+                                            $query = "SELECT * FROM messages ORDER BY msg_id desc limit $page1,5";
 
                                             //running the query
                                             $run = mysqli_query($conn, $query);
-
-
                                             //fetching the data from the database
                                             $index = 1;
                                             while ($row = mysqli_fetch_array($run)) {
-
-
                                             ?>
                                                 <tr>
                                                     <td><?php echo $index; ?></td>
-                                                    <td>
-                                                        <?php echo $row['position'] ?>
-                                                    </td>
+                                                    <td><?php echo $row['subject']; ?><br> From <i><?php echo $row['name']; ?></i> </td>
+                                                    <td><?php echo date('d F, Y', strtotime($row['date'])); ?></td>
 
-                                                   
-                                                    <td><?php echo $row['location'] ?></td>
-                                                    <td><span class="badge badge-secondary"><?php echo date('d F Y', strtotime($row['closing_date'])); ?></span></td>
-                                                   
-                                                    <td><?php echo $row['created_date'] ?></td>
                                                     <td>
                                                         <div class="dropdown d-inline-block">
-                                                            <button type="button" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown" class="mb-2 mr-2 btn btn-sm btn-info"><span class="fas fa-ellipsis-h"></span></button>
+                                                            <button type="button" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown" class="mb-2 mr-2 dropdown-toggle btn btn-info">open..</button>
                                                             <div tabindex="-1" role="menu" aria-hidden="true" class="dropdown-menu">
-                                                                <a href="vacancy.php?view_id=<?php echo $row['v_id']; ?>" tabindex="0" class="dropdown-item">view</a>
-                                                                <a href="vacancy.php?edit_id=<?php echo $row['v_id']; ?>" tabindex="0" class="dropdown-item">Edit</a>
-                                                                <a href="vacancy.php?del_id=<?php echo $row['v_id']; ?>" tabindex="0" class="dropdown-item text-danger">Delete</a>
+                                                                <a href="viewmessage.php?view_id=<?php echo $row['msg_id']; ?>" tabindex="0" class="dropdown-item">view</a>
+
+                                                                <a href="messages.php?del_id=<?php echo $row['msg_id']; ?>" tabindex="0" class="dropdown-item text-danger">Delete</a>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -579,7 +565,7 @@ if (isset($_GET['view_id'])) {
                                 <div class="card-body">
                                     <nav class="" aria-label="Page navigation example">
                                         <?php
-                                        $resl = mysqli_query($conn, "SELECT * FROM vacancies");
+                                        $resl = mysqli_query($conn, "SELECT * FROM messages");
                                         $cout = mysqli_num_rows($resl);
 
                                         $a = $cout / 5;
@@ -590,7 +576,7 @@ if (isset($_GET['view_id'])) {
                                         <ul class="pagination">
                                             <li class="page-item"><a href="javascript:void(0);" class="page-link" aria-label="Previous"><span aria-hidden="true">«</span><span class="sr-only">Previous</span></a></li>
                                             <?php for ($b = 1; $b <= $a; $b++) {  ?>
-                                                <li class="page-item"><a href="projects.php?page=<?php echo $b; ?>" class="page-link"><?php echo $b . " "; ?></a></li>
+                                                <li class="page-item"><a href="messages.php?page=<?php echo $b; ?>" class="page-link"><?php echo $b . " "; ?></a></li>
                                             <?php } ?>
                                             <li class="page-item"><a href="javascript:void(0);" class="page-link" aria-label="Next"><span aria-hidden="true">»</span><span class="sr-only">Next</span></a></li>
                                         </ul>

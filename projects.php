@@ -4,26 +4,26 @@ include('connection.php');
 
 if (isset($_GET['view_id'])) {
     $_SESSION['view_id'] = $_GET['view_id'];
-    header("location: viewvacancy.php");
+    header("location: viewproject.php");
 } elseif (isset($_GET['edit_id'])) {
     $_SESSION['edit_id'] = $_GET['edit_id'];
-    header("location: editvacancy.php");
+    header("location: editproject.php");
 } elseif (isset($_GET['del_id'])) {
     $id =  $_GET['del_id'];
 
-    $query = "SELECT * FROM `vacancies` WHERE `v_id` = $id";
+    $query = "SELECT * FROM `projects` WHERE `p_id` = $id";
     //running the query
-    // $run = mysqli_query($conn, $query);
-    // $row = mysqli_fetch_assoc($run);
-    // $image = $row['image'];
-    // unlink("images/$image");
+    $run = mysqli_query($conn, $query);
+    $row = mysqli_fetch_assoc($run);
+    $image = $row['image'];
+    unlink("images/$image");
 
-    $insert = "DELETE FROM `vacancies` WHERE `v_id` = $id";
+    $insert = "DELETE FROM `projects` WHERE `p_id` = $id";
 
     if (mysqli_query($conn, $insert)) {
-        $msg = "vacancy deleted! ";
+        $msg = "Project deleted! ";
     } else {
-        $msg2 = "Couldn't delete Vacancy!";
+        $msg2 = "Couldn't delete Project!";
     }
 }
 ?>
@@ -36,7 +36,7 @@ if (isset($_GET['view_id'])) {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="Content-Language" content="en">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>WOLREC: Projects</title>
+    <title>Dronex: Projects</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" />
     <meta name="msapplication-tap-highlight" content="no">
     <link href="./main.css" rel="stylesheet">
@@ -461,6 +461,7 @@ if (isset($_GET['view_id'])) {
                     </div>
                 </div>
  <!-- Dashboard end -->
+
                 <!-- content -->
 
             </div>
@@ -474,16 +475,16 @@ if (isset($_GET['view_id'])) {
                                     </i>
                                 </div>
                                 <div>Projects
-                                    <div class="page-title-subheading">Add, view, edit and delete Vacancies.
+                                    <div class="page-title-subheading">Add, view, edit and delete Projects.
                                     </div>
                                 </div>
                             </div>
                             <div class="page-title-actions">
-                                <a href="addvacancy.php" class="btn-shadow btn btn-info">
+                                <a href="uploadproject.php" class="btn-shadow btn btn-info">
                                     <span class="btn-icon-wrapper pr-2 opacity-7">
                                         <i class="fa fa-upload fa-w-20"></i>
                                     </span>
-                                    Add Vacancy
+                                    Add Project
                                 </a>
                             </div>
                         </div>
@@ -512,12 +513,9 @@ if (isset($_GET['view_id'])) {
                                         <thead>
                                             <tr>
                                                 <th>#</th>
-                                                <th>position</th>
-                                              
-                                                <th>location</th>
-                                                <th>closing data</th>
-                                                
-                                                <th>Created</th>
+                                                <th>Image</th>
+                                                <th>Title & Author</th>
+                                                <th>Date</th>
 
                                                 <th>Actions</th>
                                             </tr>
@@ -534,7 +532,7 @@ if (isset($_GET['view_id'])) {
 
                                                 $page1 = ($page * 5) - 5;
                                             }
-                                            $query = "SELECT * FROM vacancies ORDER BY v_id desc limit $page1,5";
+                                            $query = "SELECT * FROM projects ORDER BY p_id desc limit $page1,5";
 
                                             //running the query
                                             $run = mysqli_query($conn, $query);
@@ -549,21 +547,22 @@ if (isset($_GET['view_id'])) {
                                                 <tr>
                                                     <td><?php echo $index; ?></td>
                                                     <td>
-                                                        <?php echo $row['position'] ?>
+                                                        <img width="40" style="border-radius:5px;" src="images/<?php echo $row['image'] ?>" alt="">
                                                     </td>
 
-                                                   
-                                                    <td><?php echo $row['location'] ?></td>
-                                                    <td><span class="badge badge-secondary"><?php echo date('d F Y', strtotime($row['closing_date'])); ?></span></td>
-                                                   
-                                                    <td><?php echo $row['created_date'] ?></td>
+                                                    <td><?php echo substr($row['title'], 0, 20); ?>...<br><span class="badge">By <?php echo $row['firstname'] . " " . $row['lastname']; ?></span> </td>
+                                                    <td><span class="badge badge-secondary"><?php echo date('d F Y', strtotime($row['start_date'])); ?></span></td>
+                                                    <!-- <td>
+                                                        <div class="badge badge-warning"><?php //echo $rescountall; 
+                                                                                            ?></div>
+                                                    </td> -->
                                                     <td>
                                                         <div class="dropdown d-inline-block">
                                                             <button type="button" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown" class="mb-2 mr-2 btn btn-sm btn-info"><span class="fas fa-ellipsis-h"></span></button>
                                                             <div tabindex="-1" role="menu" aria-hidden="true" class="dropdown-menu">
-                                                                <a href="vacancy.php?view_id=<?php echo $row['v_id']; ?>" tabindex="0" class="dropdown-item">view</a>
-                                                                <a href="vacancy.php?edit_id=<?php echo $row['v_id']; ?>" tabindex="0" class="dropdown-item">Edit</a>
-                                                                <a href="vacancy.php?del_id=<?php echo $row['v_id']; ?>" tabindex="0" class="dropdown-item text-danger">Delete</a>
+                                                                <a href="projects.php?view_id=<?php echo $row['p_id']; ?>" tabindex="0" class="dropdown-item">view</a>
+                                                                <a href="projects.php?edit_id=<?php echo $row['p_id']; ?>" tabindex="0" class="dropdown-item">Edit</a>
+                                                                <a href="projects.php?del_id=<?php echo $row['p_id']; ?>" tabindex="0" class="dropdown-item text-danger">Delete</a>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -579,7 +578,7 @@ if (isset($_GET['view_id'])) {
                                 <div class="card-body">
                                     <nav class="" aria-label="Page navigation example">
                                         <?php
-                                        $resl = mysqli_query($conn, "SELECT * FROM vacancies");
+                                        $resl = mysqli_query($conn, "SELECT * FROM projects");
                                         $cout = mysqli_num_rows($resl);
 
                                         $a = $cout / 5;

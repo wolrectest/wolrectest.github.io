@@ -2,32 +2,23 @@
 
 include('connection.php');
 
-if (isset($_GET['view_id'])) {
-    $_SESSION['view_id'] = $_GET['view_id'];
-    header("location: viewvacancy.php");
-} elseif (isset($_GET['edit_id'])) {
-    $_SESSION['edit_id'] = $_GET['edit_id'];
-    header("location: editvacancy.php");
-} elseif (isset($_GET['del_id'])) {
-    $id =  $_GET['del_id'];
-
-    $query = "SELECT * FROM `vacancies` WHERE `v_id` = $id";
-    //running the query
-    // $run = mysqli_query($conn, $query);
-    // $row = mysqli_fetch_assoc($run);
-    // $image = $row['image'];
-    // unlink("images/$image");
-
-    $insert = "DELETE FROM `vacancies` WHERE `v_id` = $id";
+if (isset($_SESSION['view_id'])) {
+    $blog_id = $_SESSION['view_id'];
+} else {
+    header("location: blog.php");
+}
+if (isset($_GET['deleteid'])) {
+    $id =  $_GET['deleteid'];
+    $insert = "DELETE FROM `comments` WHERE `com_id` = $id";
 
     if (mysqli_query($conn, $insert)) {
-        $msg = "vacancy deleted! ";
+        $msg = "Comment deleted! ";
     } else {
-        $msg2 = "Couldn't delete Vacancy!";
+        $msg2 = "Couldn't delete comment!";
     }
 }
-?>
 
+?>
 <!doctype html>
 <html lang="en">
 
@@ -36,7 +27,7 @@ if (isset($_GET['view_id'])) {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="Content-Language" content="en">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>WOLREC: Projects</title>
+    <title>WOLREC: View News</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" />
     <meta name="msapplication-tap-highlight" content="no">
     <link href="./main.css" rel="stylesheet">
@@ -387,7 +378,7 @@ if (isset($_GET['view_id'])) {
         <div class="app-main">
             <div class="app-sidebar sidebar-shadow">
                 <div class="app-header__logo">
-                    <!-- <div class="logo-src"></div> -->
+                    <div class="logo-src"></div>
                     <div class="header__pane ml-auto">
                         <div>
                             <button type="button" class="hamburger close-sidebar-btn hamburger--elastic" data-class="closed-sidebar">
@@ -461,140 +452,98 @@ if (isset($_GET['view_id'])) {
                     </div>
                 </div>
  <!-- Dashboard end -->
-                <!-- content -->
 
             </div>
             <div class="app-main__outer">
                 <div class="app-main__inner">
-                    <div class="app-page-title">
-                        <div class="page-title-wrapper">
-                            <div class="page-title-heading">
-                                <div class="page-title-icon">
-                                    <i class="pe-7s-display2 icon-gradient bg-sunny-morning">
-                                    </i>
-                                </div>
-                                <div>Projects
-                                    <div class="page-title-subheading">Add, view, edit and delete Vacancies.
+                    <?php
+                    $query = "SELECT * FROM `blog` WHERE `blog_id` = $blog_id";
+                    //running the query
+                    $run = mysqli_query($conn, $query);
+                    $row = mysqli_fetch_assoc($run);
+
+                    $cat_id = $row['cat_id'];
+                    $run2 = mysqli_query($conn, "SELECT * FROM `category` WHERE `cat_id` = $cat_id");
+                    $rw = mysqli_fetch_assoc($run2);
+                    ?>
+                    <div class="main-card mb-3 card">
+                        <div class="card-header">
+                            <i class="header-icon lnr-laptop-phone icon-gradient bg-plum-plate"> </i>
+                            <?php echo $row['blog_title']; ?>
+                            <div class="btn-actions-pane-right actions-icon-btn">
+                                By <?php echo $row['first_name'] . " " . $row['last_name']; ?> <i class="pe-7s-user icon-gradient bg-arielle-smile" style="font-size: large;"></i>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="scroll-area-sm">
+                                <div class="scrollbar-container ps--active-y">
+                                    <div><img src="images/<?php echo $row['image'] ?>" alt="blog image" style="border-radius:5%; padding:5px;" align="left" width="35%" height="70%">
+                                        <div style="padding:5px;"><?php echo $row['blog_content']; ?></div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="page-title-actions">
-                                <a href="addvacancy.php" class="btn-shadow btn btn-info">
-                                    <span class="btn-icon-wrapper pr-2 opacity-7">
-                                        <i class="fa fa-upload fa-w-20"></i>
-                                    </span>
-                                    Add Vacancy
-                                </a>
-                            </div>
+                        </div>
+                        <div class="d-block text-right card-footer">
+                            Category: <?php echo $rw['cat_name']; ?> | Date: <?php echo date('d F, Y', strtotime($row['date'])); ?> <i class="pe-7s-date icon-gradient bg-arielle-smile" style="font-size: large;"></i>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-12">
-                            <?php
-                            if (isset($msg)) { ?>
-                                <div class="alert alert-success alert-dismissible fade show mt-3 align-center" style="margin:auto" role="alert">
-                                    <?php echo $msg; ?>
-
-                                </div>
-                            <?php
-                            } elseif (isset($msg2)) { ?>
-                                <div class="alert alert-danger alert-dismissible fade show mt-3 align-center" style="margin:auto" role="alert">
-                                    <?php echo $msg2; ?>
-
-                                </div>
-                            <?php } else {
-                            } ?>
                             <div class="main-card mb-3 card">
-                                <div class="card-header">Projects
+                                <?php
+                                if (isset($msg)) { ?>
+                                    <div class="alert alert-success alert-dismissible fade show mt-3 align-center" style="margin:auto" role="alert">
+                                        <?php echo $msg; ?>
+
+                                    </div>
+                                <?php
+                                } elseif (isset($msg2)) { ?>
+                                    <div class="alert alert-danger alert-dismissible fade show mt-3 align-center" style="margin:auto" role="alert">
+                                        <?php echo $msg2; ?>
+
+                                    </div>
+                                <?php } else {
+                                } ?>
+                                <div class="card-header">Comments
                                 </div>
                                 <div class="table-responsive">
                                     <table class="align-middle mb-0 table table-borderless table-striped table-hover">
                                         <thead>
+
                                             <tr>
-                                                <th>#</th>
-                                                <th>position</th>
-                                              
-                                                <th>location</th>
-                                                <th>closing data</th>
-                                                
-                                                <th>Created</th>
-
-                                                <th>Actions</th>
+                                                <th class="text-center">#</th>
+                                                <th>Comment</th>
+                                                <th class="text-center">By</th>
+                                                <th class="text-center">Email</th>
+                                                <th class="text-center">Delete</th>
                                             </tr>
+
                                         </thead>
-                                        <tbody>
-                                            <?php
-                                            //executing the query
-                                            @$page = $_GET["page"];
+                                        <tbody> <?php $a = 1;
+                                                $selectcomment = mysqli_query($conn, "SELECT * FROM comments WHERE blog_id = '$blog_id'");
 
-                                            if ($page == "" || $page == "1") {
-
-                                                $page1 = 0;
-                                            } else {
-
-                                                $page1 = ($page * 5) - 5;
-                                            }
-                                            $query = "SELECT * FROM vacancies ORDER BY v_id desc limit $page1,5";
-
-                                            //running the query
-                                            $run = mysqli_query($conn, $query);
-
-
-                                            //fetching the data from the database
-                                            $index = 1;
-                                            while ($row = mysqli_fetch_array($run)) {
-
-
-                                            ?>
+                                                while ($data = mysqli_fetch_assoc($selectcomment)) {
+                                                ?>
                                                 <tr>
-                                                    <td><?php echo $index; ?></td>
+                                                    <td class="text-center text-muted"><?php echo $a++ ?></td>
                                                     <td>
-                                                        <?php echo $row['position'] ?>
-                                                    </td>
-
-                                                   
-                                                    <td><?php echo $row['location'] ?></td>
-                                                    <td><span class="badge badge-secondary"><?php echo date('d F Y', strtotime($row['closing_date'])); ?></span></td>
-                                                   
-                                                    <td><?php echo $row['created_date'] ?></td>
-                                                    <td>
-                                                        <div class="dropdown d-inline-block">
-                                                            <button type="button" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown" class="mb-2 mr-2 btn btn-sm btn-info"><span class="fas fa-ellipsis-h"></span></button>
-                                                            <div tabindex="-1" role="menu" aria-hidden="true" class="dropdown-menu">
-                                                                <a href="vacancy.php?view_id=<?php echo $row['v_id']; ?>" tabindex="0" class="dropdown-item">view</a>
-                                                                <a href="vacancy.php?edit_id=<?php echo $row['v_id']; ?>" tabindex="0" class="dropdown-item">Edit</a>
-                                                                <a href="vacancy.php?del_id=<?php echo $row['v_id']; ?>" tabindex="0" class="dropdown-item text-danger">Delete</a>
+                                                        <div class="widget-content p-0">
+                                                            <div class="widget-content-wrapper">
+                                                                <div class="widget-content-left flex2">
+                                                                    <div class="widget-heading"><?php echo $data['comment'] ?></div>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </td>
+                                                    <td class="text-center"><?php echo $data['name'] ?></td>
+                                                    <td class="text-center"><?php echo $data['email'] ?></td>
+                                                    <td class="text-center">
+                                                        <a href="view.php?deleteid=<?php echo $data['com_id']; ?>" class="btn btn-outline-danger btn-transition"><i class="pe-7s-trash" style="font-size:large;"></i></a>
+                                                    </td>
                                                 </tr>
-                                            <?php
-                                                $index++;
-                                            } ?>
+                                            <?php } ?>
                                         </tbody>
                                     </table>
-                                </div>
-                            </div>
-                            <div class="main-card mb-3 card">
-                                <div class="card-body">
-                                    <nav class="" aria-label="Page navigation example">
-                                        <?php
-                                        $resl = mysqli_query($conn, "SELECT * FROM vacancies");
-                                        $cout = mysqli_num_rows($resl);
-
-                                        $a = $cout / 5;
-
-                                        $a = ceil($a);
-                                        ?>
-
-                                        <ul class="pagination">
-                                            <li class="page-item"><a href="javascript:void(0);" class="page-link" aria-label="Previous"><span aria-hidden="true">«</span><span class="sr-only">Previous</span></a></li>
-                                            <?php for ($b = 1; $b <= $a; $b++) {  ?>
-                                                <li class="page-item"><a href="projects.php?page=<?php echo $b; ?>" class="page-link"><?php echo $b . " "; ?></a></li>
-                                            <?php } ?>
-                                            <li class="page-item"><a href="javascript:void(0);" class="page-link" aria-label="Next"><span aria-hidden="true">»</span><span class="sr-only">Next</span></a></li>
-                                        </ul>
-                                    </nav>
                                 </div>
                             </div>
                         </div>

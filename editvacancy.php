@@ -2,32 +2,31 @@
 
 include('connection.php');
 
-if (isset($_GET['view_id'])) {
-    $_SESSION['view_id'] = $_GET['view_id'];
-    header("location: viewvacancy.php");
-} elseif (isset($_GET['edit_id'])) {
-    $_SESSION['edit_id'] = $_GET['edit_id'];
-    header("location: editvacancy.php");
-} elseif (isset($_GET['del_id'])) {
-    $id =  $_GET['del_id'];
 
-    $query = "SELECT * FROM `vacancies` WHERE `v_id` = $id";
-    //running the query
-    // $run = mysqli_query($conn, $query);
-    // $row = mysqli_fetch_assoc($run);
-    // $image = $row['image'];
-    // unlink("images/$image");
+if (isset($_SESSION['edit_id'])) {
+    $project_id = $_SESSION['edit_id'];
+} else {
+    header("location: vacancy.php");
+}
 
-    $insert = "DELETE FROM `vacancies` WHERE `v_id` = $id";
+if (isset($_POST['edit'])) {
+    $position = strip_tags($_POST['position']);
+    $summary = strip_tags($_POST['summary']);
+    $requirements = strip_tags($_POST['requirements']);
+    $location = strip_tags($_POST['location']);
+    $closing_date = strip_tags($_POST['cdate']);
+    $details = $_POST['details'];
 
-    if (mysqli_query($conn, $insert)) {
-        $msg = "vacancy deleted! ";
+
+    $insert_query = "UPDATE vacancies SET `position` = '$position', `summary` = '$summary', `requirements` = '$requirements', `location` = '$location', `closing_date` = '$closing_date',  `details` = '$details' WHERE `v_id` = '$project_id'";
+
+    if (mysqli_query($conn, $insert_query)) {
+        $msg = "Vacancy details edited successfully! ";
     } else {
-        $msg2 = "Couldn't delete Vacancy!";
+        $msg2 = "Couldn't edit vacancy details!";
     }
 }
 ?>
-
 <!doctype html>
 <html lang="en">
 
@@ -36,7 +35,7 @@ if (isset($_GET['view_id'])) {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="Content-Language" content="en">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>WOLREC: Projects</title>
+    <title>Dronex: Edit Project</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" />
     <meta name="msapplication-tap-highlight" content="no">
     <link href="./main.css" rel="stylesheet">
@@ -461,140 +460,111 @@ if (isset($_GET['view_id'])) {
                     </div>
                 </div>
  <!-- Dashboard end -->
+
                 <!-- content -->
 
             </div>
             <div class="app-main__outer">
                 <div class="app-main__inner">
-                    <div class="app-page-title">
-                        <div class="page-title-wrapper">
-                            <div class="page-title-heading">
-                                <div class="page-title-icon">
-                                    <i class="pe-7s-display2 icon-gradient bg-sunny-morning">
-                                    </i>
-                                </div>
-                                <div>Projects
-                                    <div class="page-title-subheading">Add, view, edit and delete Vacancies.
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="page-title-actions">
-                                <a href="addvacancy.php" class="btn-shadow btn btn-info">
-                                    <span class="btn-icon-wrapper pr-2 opacity-7">
-                                        <i class="fa fa-upload fa-w-20"></i>
-                                    </span>
-                                    Add Vacancy
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <?php
-                            if (isset($msg)) { ?>
-                                <div class="alert alert-success alert-dismissible fade show mt-3 align-center" style="margin:auto" role="alert">
-                                    <?php echo $msg; ?>
-
-                                </div>
-                            <?php
-                            } elseif (isset($msg2)) { ?>
-                                <div class="alert alert-danger alert-dismissible fade show mt-3 align-center" style="margin:auto" role="alert">
-                                    <?php echo $msg2; ?>
-
-                                </div>
-                            <?php } else {
-                            } ?>
+                    <div class="tab-content">
+                        <div class="tab-pane tabs-animation fade show active" id="tab-content-0" role="tabpanel">
+                            <script>
+                                // Example starter JavaScript for disabling form submissions if there are invalid fields
+                                (function() {
+                                    'use strict';
+                                    window.addEventListener('load', function() {
+                                        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+                                        var forms = document.getElementsByClassName('needs-validation');
+                                        // Loop over them and prevent submission
+                                        var validation = Array.prototype.filter.call(forms, function(form) {
+                                            form.addEventListener('submit', function(event) {
+                                                if (form.checkValidity() === false) {
+                                                    event.preventDefault();
+                                                    event.stopPropagation();
+                                                }
+                                                form.classList.add('was-validated');
+                                            }, false);
+                                        });
+                                    }, false);
+                                })();
+                            </script>
                             <div class="main-card mb-3 card">
-                                <div class="card-header">Projects
-                                </div>
-                                <div class="table-responsive">
-                                    <table class="align-middle mb-0 table table-borderless table-striped table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>#</th>
-                                                <th>position</th>
-                                              
-                                                <th>location</th>
-                                                <th>closing data</th>
-                                                
-                                                <th>Created</th>
-
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
+                                <?php
+                                if (isset($msg)) { ?>
+                                    <div class="alert alert-success alert-dismissible fade show mt-3" role="alert" style="margin: auto;">
+                                        <?php echo $msg; ?>
+                                    </div>
+                                <?php
+                                } elseif (isset($msg2)) { ?>
+                                    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert" style="margin: auto;">
+                                        <?php echo $msg2; ?>
+                                    </div>
+                                <?php } else {
+                                } ?>
+                                <div class="card-body">
+                                    <h5 class="card-title">Edit Blog</h5>
+                                    <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" enctype="multipart/form-data" class="needs-validation" novalidate>
+                                        <div class="app-main__inner">
                                             <?php
-                                            //executing the query
-                                            @$page = $_GET["page"];
-
-                                            if ($page == "" || $page == "1") {
-
-                                                $page1 = 0;
-                                            } else {
-
-                                                $page1 = ($page * 5) - 5;
-                                            }
-                                            $query = "SELECT * FROM vacancies ORDER BY v_id desc limit $page1,5";
-
+                                            $query = "SELECT * FROM vacancies WHERE `v_id` = '$project_id' ";
                                             //running the query
                                             $run = mysqli_query($conn, $query);
-
-
-                                            //fetching the data from the database
-                                            $index = 1;
-                                            while ($row = mysqli_fetch_array($run)) {
-
-
+                                            $row = mysqli_fetch_assoc($run);
                                             ?>
-                                                <tr>
-                                                    <td><?php echo $index; ?></td>
-                                                    <td>
-                                                        <?php echo $row['position'] ?>
-                                                    </td>
+                                            <div class="form-row">
+                                            <div class="col-md-12 mb-3">
+                                                <label for="validationTooltip05">Summary <span class="text-danger">*</span></label>
+                                                <textarea name="summary" cols="30" value = "<?php echo $row['summary'] ?>" rows="10" class="form-control" required><?php echo $row['summary'] ?></textarea>
+                                                <div class="invalid-tooltip">
+                                                    Enter summary text, please!
+                                                </div>
+                                            </div>
 
-                                                   
-                                                    <td><?php echo $row['location'] ?></td>
-                                                    <td><span class="badge badge-secondary"><?php echo date('d F Y', strtotime($row['closing_date'])); ?></span></td>
-                                                   
-                                                    <td><?php echo $row['created_date'] ?></td>
-                                                    <td>
-                                                        <div class="dropdown d-inline-block">
-                                                            <button type="button" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown" class="mb-2 mr-2 btn btn-sm btn-info"><span class="fas fa-ellipsis-h"></span></button>
-                                                            <div tabindex="-1" role="menu" aria-hidden="true" class="dropdown-menu">
-                                                                <a href="vacancy.php?view_id=<?php echo $row['v_id']; ?>" tabindex="0" class="dropdown-item">view</a>
-                                                                <a href="vacancy.php?edit_id=<?php echo $row['v_id']; ?>" tabindex="0" class="dropdown-item">Edit</a>
-                                                                <a href="vacancy.php?del_id=<?php echo $row['v_id']; ?>" tabindex="0" class="dropdown-item text-danger">Delete</a>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            <?php
-                                                $index++;
-                                            } ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="main-card mb-3 card">
-                                <div class="card-body">
-                                    <nav class="" aria-label="Page navigation example">
-                                        <?php
-                                        $resl = mysqli_query($conn, "SELECT * FROM vacancies");
-                                        $cout = mysqli_num_rows($resl);
+                
+                                            <div class="col-md-6 mb-3">
 
-                                        $a = $cout / 5;
+                                                <label for="validationTooltip01">Position <span class="text-danger">*</span></label>
+                                                <input type="text" name="position" value = "<?php echo $row['position'] ?>" class="form-control" id="validationTooltip01" placeholder="i.e Driver" required>
+                                                <div class="invalid-tooltip">
+                                                    Enter position here, please!
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="validationTooltip02">Requirements <span class="text-danger">*</span></label>
+                                                <input type="text" name="requirements" value = "<?php echo $row['requirements'] ?>" class="form-control" id="validationTooltip02" placeholder="i.e Bachelors degree in computer science" required>
+                                                <div class="invalid-tooltip">
+                                                    Enter requirements here, please!
+                                                </div>
+                                            </div>
+                                           
+                                            <div class="col-md-6 mb-3">
+                                                <label for="validationTooltip04">location <span class="text-danger">*</span></label>
+                                                <input type="text" name="location" value = "<?php echo $row['location'] ?>" class="form-control" id="validationTooltip04" required>
+                                                <div class="invalid-tooltip">
+                                                    Enter location, please!
+                                                </div>
+                                            </div>
 
-                                        $a = ceil($a);
-                                        ?>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="validationTooltip04">Closing Date <span class="text-danger">*</span></label>
+                                                <input type="date" placeholder="Enter Title" value = "<?php echo $row['closing_date'] ?>" name="cdate" class="form-control" id="validationTooltip04" required>
+                                                <div class="invalid-tooltip">
+                                                    Enter closing date, please!
+                                                </div>
+                                            </div>
 
-                                        <ul class="pagination">
-                                            <li class="page-item"><a href="javascript:void(0);" class="page-link" aria-label="Previous"><span aria-hidden="true">«</span><span class="sr-only">Previous</span></a></li>
-                                            <?php for ($b = 1; $b <= $a; $b++) {  ?>
-                                                <li class="page-item"><a href="projects.php?page=<?php echo $b; ?>" class="page-link"><?php echo $b . " "; ?></a></li>
-                                            <?php } ?>
-                                            <li class="page-item"><a href="javascript:void(0);" class="page-link" aria-label="Next"><span aria-hidden="true">»</span><span class="sr-only">Next</span></a></li>
-                                        </ul>
-                                    </nav>
+
+                                            <div class="col-md-12 mb-3">
+                                                <label for="validationTooltip05">other details <span class="text-danger">*</span></label>
+                                                <textarea name="details" id="edit" value = "<?php echo $row['details'] ?>" cols="30" rows="10" class="form-control" required><?php echo $row['details'] ?></textarea>
+                                                <div class="invalid-tooltip">
+                                                    Enter the blog text, please!
+                                                </div>
+                                            </div>
+
+                                            </div>
+                                            <button class="mt-2 btn btn-primary col-6" type="submit" name="edit">Save</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -645,6 +615,19 @@ if (isset($_GET['view_id'])) {
             <script src="http://maps.google.com/maps/api/js?sensor=true"></script>
         </div>
     </div>
+    <script src="./ckeditor/ckeditor.js"></script>
+    <script>
+        ClassicEditor
+            .create(document.querySelector('#edit'), {
+                // toolbar: [ 'heading', '|', 'bold', 'italic', 'link' ]
+            })
+            .then(editor => {
+                window.editor = editor;
+            })
+            .catch(err => {
+                console.error(err.stack);
+            });
+    </script>
     <script type="text/javascript" src="./assets/scripts/main.js"></script>
 </body>
 

@@ -1,30 +1,8 @@
 <?php
-
 include('connection.php');
-
 if (isset($_GET['view_id'])) {
     $_SESSION['view_id'] = $_GET['view_id'];
-    header("location: viewvacancy.php");
-} elseif (isset($_GET['edit_id'])) {
-    $_SESSION['edit_id'] = $_GET['edit_id'];
-    header("location: editvacancy.php");
-} elseif (isset($_GET['del_id'])) {
-    $id =  $_GET['del_id'];
-
-    $query = "SELECT * FROM `vacancies` WHERE `v_id` = $id";
-    //running the query
-    // $run = mysqli_query($conn, $query);
-    // $row = mysqli_fetch_assoc($run);
-    // $image = $row['image'];
-    // unlink("images/$image");
-
-    $insert = "DELETE FROM `vacancies` WHERE `v_id` = $id";
-
-    if (mysqli_query($conn, $insert)) {
-        $msg = "vacancy deleted! ";
-    } else {
-        $msg2 = "Couldn't delete Vacancy!";
-    }
+    header("location: view.php");
 }
 ?>
 
@@ -36,7 +14,7 @@ if (isset($_GET['view_id'])) {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="Content-Language" content="en">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>WOLREC: Projects</title>
+    <title>Wolrec: Admin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" />
     <meta name="msapplication-tap-highlight" content="no">
     <link href="./main.css" rel="stylesheet">
@@ -416,8 +394,7 @@ if (isset($_GET['view_id'])) {
                         </button>
                     </span>
                 </div>
-                 <!-- Dashboard start -->  
-			 <div class="scrollbar-sidebar">
+                <div class="scrollbar-sidebar">
                     <div class="app-sidebar__inner">
                         <ul class="vertical-nav-menu">
                             <li class="app-sidebar__heading">Dashboard</li>
@@ -460,65 +437,77 @@ if (isset($_GET['view_id'])) {
                         </ul>
                     </div>
                 </div>
- <!-- Dashboard end -->
+
                 <!-- content -->
 
             </div>
             <div class="app-main__outer">
                 <div class="app-main__inner">
-                    <div class="app-page-title">
-                        <div class="page-title-wrapper">
-                            <div class="page-title-heading">
-                                <div class="page-title-icon">
-                                    <i class="pe-7s-display2 icon-gradient bg-sunny-morning">
-                                    </i>
-                                </div>
-                                <div>Projects
-                                    <div class="page-title-subheading">Add, view, edit and delete Vacancies.
+                    <div class="row">
+                        <div class="col-md-6 col-xl-4 col-4">
+                            <div class="card mb-3 widget-content bg-grow-early">
+                                <div class="widget-content-wrapper text-white">
+                                    <div class="widget-content-left">
+                                        <div class="widget-heading">Blog Category</div>
+                                        <div class="widget-subheading">New</div>
+                                    </div>
+                                    <div class="widget-content-right">
+                                    <?php
+                                        $result = mysqli_query($conn, "SELECT * FROM category");
+                                        $apps = mysqli_num_rows($result)
+                                        ?>
+                                        <div class="widget-numbers"><a href="#" class="text-white"><?php echo $apps ?></span></a></div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="page-title-actions">
-                                <a href="addvacancy.php" class="btn-shadow btn btn-info">
-                                    <span class="btn-icon-wrapper pr-2 opacity-7">
-                                        <i class="fa fa-upload fa-w-20"></i>
-                                    </span>
-                                    Add Vacancy
-                                </a>
+                        </div>
+                        <div class="col-md-6 col-xl-4 col-4">
+                            <div class="card mb-3 widget-content bg-midnight-bloom">
+                                <div class="widget-content-wrapper text-white">
+                                    <div class="widget-content-left">
+                                        <div class="widget-heading">Blogs</div>
+                                        <div class="widget-subheading">Total</div>
+                                    </div>
+                                    <div class="widget-content-right">
+                                        <?php
+                                        $result = mysqli_query($conn, "SELECT * FROM blog");
+                                        $blogs = mysqli_num_rows($result)
+                                        ?>
+                                        <div class="widget-numbers text-white"><span><?php echo $blogs; ?></span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xl-4 col-4">
+                            <div class="card mb-3 widget-content bg-arielle-smile">
+                                <div class="widget-content-wrapper text-white">
+                                    <div class="widget-content-left">
+                                        <div class="widget-heading">Projects</div>
+                                        <div class="widget-subheading">Total</div>
+                                    </div>
+                                    <?php
+                                    $result = mysqli_query($conn, "SELECT * FROM projects");
+                                    $cats = mysqli_num_rows($result)
+                                    ?>
+                                    <div class="widget-content-right">
+                                        <div class="widget-numbers text-white"><span><?php echo $cats; ?></span></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-12">
-                            <?php
-                            if (isset($msg)) { ?>
-                                <div class="alert alert-success alert-dismissible fade show mt-3 align-center" style="margin:auto" role="alert">
-                                    <?php echo $msg; ?>
-
-                                </div>
-                            <?php
-                            } elseif (isset($msg2)) { ?>
-                                <div class="alert alert-danger alert-dismissible fade show mt-3 align-center" style="margin:auto" role="alert">
-                                    <?php echo $msg2; ?>
-
-                                </div>
-                            <?php } else {
-                            } ?>
                             <div class="main-card mb-3 card">
-                                <div class="card-header">Projects
-                                </div>
+                                <div class="card-header">Recent Uploads</div>
                                 <div class="table-responsive">
                                     <table class="align-middle mb-0 table table-borderless table-striped table-hover">
                                         <thead>
                                             <tr>
                                                 <th>#</th>
-                                                <th>position</th>
-                                              
-                                                <th>location</th>
-                                                <th>closing data</th>
-                                                
-                                                <th>Created</th>
-
+                                                <th>Image</th>
+                                                <th>Title & Author</th>
+                                                <th>Date</th>
                                                 <th>Actions</th>
                                             </tr>
                                         </thead>
@@ -534,38 +523,24 @@ if (isset($_GET['view_id'])) {
 
                                                 $page1 = ($page * 5) - 5;
                                             }
-                                            $query = "SELECT * FROM vacancies ORDER BY v_id desc limit $page1,5";
+                                            $query = "SELECT * FROM blog ORDER BY blog_id desc limit $page1,5";
 
                                             //running the query
                                             $run = mysqli_query($conn, $query);
-
-
                                             //fetching the data from the database
                                             $index = 1;
                                             while ($row = mysqli_fetch_array($run)) {
-
-
                                             ?>
                                                 <tr>
-                                                    <td><?php echo $index; ?></td>
+                                                    <td class="text-center text-muted"><?php echo $index; ?>.</td>
                                                     <td>
-                                                        <?php echo $row['position'] ?>
+                                                        <img width="40" style="border-radius:5px;" src="images/<?php echo $row['image'] ?>" alt="">
                                                     </td>
 
-                                                   
-                                                    <td><?php echo $row['location'] ?></td>
-                                                    <td><span class="badge badge-secondary"><?php echo date('d F Y', strtotime($row['closing_date'])); ?></span></td>
-                                                   
-                                                    <td><?php echo $row['created_date'] ?></td>
-                                                    <td>
-                                                        <div class="dropdown d-inline-block">
-                                                            <button type="button" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown" class="mb-2 mr-2 btn btn-sm btn-info"><span class="fas fa-ellipsis-h"></span></button>
-                                                            <div tabindex="-1" role="menu" aria-hidden="true" class="dropdown-menu">
-                                                                <a href="vacancy.php?view_id=<?php echo $row['v_id']; ?>" tabindex="0" class="dropdown-item">view</a>
-                                                                <a href="vacancy.php?edit_id=<?php echo $row['v_id']; ?>" tabindex="0" class="dropdown-item">Edit</a>
-                                                                <a href="vacancy.php?del_id=<?php echo $row['v_id']; ?>" tabindex="0" class="dropdown-item text-danger">Delete</a>
-                                                            </div>
-                                                        </div>
+                                                    <td><?php echo substr($row['blog_title'], 0, 20); ?>...<br><span class="badge">By <?php echo $row['first_name'] . " " . $row['last_name']; ?></span> </td>
+                                                    <td><span class="badge badge-secondary"><?php echo date('d F Y', strtotime($row['date'])); ?></span></td>
+                                                    <td class="">
+                                                        <a href="home.php?view_id=<?php echo $row['blog_id']; ?>" id="PopoverCustomT-1" class="badge badge-primary"><span class="fa fa-eye"></span></a>
                                                     </td>
                                                 </tr>
                                             <?php
@@ -579,7 +554,7 @@ if (isset($_GET['view_id'])) {
                                 <div class="card-body">
                                     <nav class="" aria-label="Page navigation example">
                                         <?php
-                                        $resl = mysqli_query($conn, "SELECT * FROM vacancies");
+                                        $resl = mysqli_query($conn, "SELECT * FROM blog");
                                         $cout = mysqli_num_rows($resl);
 
                                         $a = $cout / 5;
@@ -590,7 +565,7 @@ if (isset($_GET['view_id'])) {
                                         <ul class="pagination">
                                             <li class="page-item"><a href="javascript:void(0);" class="page-link" aria-label="Previous"><span aria-hidden="true">«</span><span class="sr-only">Previous</span></a></li>
                                             <?php for ($b = 1; $b <= $a; $b++) {  ?>
-                                                <li class="page-item"><a href="projects.php?page=<?php echo $b; ?>" class="page-link"><?php echo $b . " "; ?></a></li>
+                                                <li class="page-item"><a href="home.php?page=<?php echo $b; ?>" class="page-link"><?php echo $b . " "; ?></a></li>
                                             <?php } ?>
                                             <li class="page-item"><a href="javascript:void(0);" class="page-link" aria-label="Next"><span aria-hidden="true">»</span><span class="sr-only">Next</span></a></li>
                                         </ul>
@@ -600,44 +575,12 @@ if (isset($_GET['view_id'])) {
                         </div>
                     </div>
                 </div>
-
                 <!-- body ends -->
 
                 <!-- footer startd -->
                 <div class="app-wrapper-footer">
                     <div class="app-footer">
                         <div class="app-footer__inner">
-                            <!-- <div class="app-footer-left">
-                                <ul class="nav">
-                                    <li class="nav-item">
-                                        <a href="javascript:void(0);" class="nav-link">
-                                            Footer Link 1
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="javascript:void(0);" class="nav-link">
-                                            Footer Link 2
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="app-footer-right">
-                                <ul class="nav">
-                                    <li class="nav-item">
-                                        <a href="javascript:void(0);" class="nav-link">
-                                            Footer Link 3
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="javascript:void(0);" class="nav-link">
-                                            <div class="badge badge-success mr-1 ml-0">
-                                                <small>NEW</small>
-                                            </div>
-                                            Footer Link 4
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div> -->
                         </div>
                     </div>
                 </div>

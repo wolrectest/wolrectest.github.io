@@ -1,31 +1,74 @@
 <?php
 
+
 include('connection.php');
 
-if (isset($_GET['view_id'])) {
-    $_SESSION['view_id'] = $_GET['view_id'];
-    header("location: viewvacancy.php");
-} elseif (isset($_GET['edit_id'])) {
-    $_SESSION['edit_id'] = $_GET['edit_id'];
-    header("location: editvacancy.php");
-} elseif (isset($_GET['del_id'])) {
-    $id =  $_GET['del_id'];
 
-    $query = "SELECT * FROM `vacancies` WHERE `v_id` = $id";
-    //running the query
-    // $run = mysqli_query($conn, $query);
-    // $row = mysqli_fetch_assoc($run);
-    // $image = $row['image'];
-    // unlink("images/$image");
+$retrieve = mysqli_query($conn, "SELECT * FROM user_details WHERE email = '$user'");
 
-    $insert = "DELETE FROM `vacancies` WHERE `v_id` = $id";
 
-    if (mysqli_query($conn, $insert)) {
-        $msg = "vacancy deleted! ";
+if (isset($_POST['changepassword'])) {
+
+    $oddpass = md5($_POST['oldpassword']);
+    $password1 = md5($_POST['password1']);
+    $password2 = md5($_POST['password2']);
+
+
+
+    while ($row1 = mysqli_fetch_assoc($retrieve)) {
+        $pass = $row1['password'];
+    }
+
+    if ($oddpass == $pass) {
+
+
+        if ($password1 == $password2) {
+            $sql = "UPDATE user_details SET password = '$password2' WHERE user_id = '$id'";
+
+            if (mysqli_query($conn, $sql)) {
+                header("location:http://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/../index.php");
+                exit();
+            } else {
+                echo "failed";
+            }
+        } else {
+            $msg1 = "two passwords dont match!!";
+        }
     } else {
-        $msg2 = "Couldn't delete Vacancy!";
+        $msg = "current password is incorrect";
     }
 }
+
+
+if (isset($_POST['upload'])) {
+    $fname = strip_tags($_POST['fname']);
+    $lname = strip_tags($_POST['lname']);
+    $category = strip_tags($_POST['category']);
+    $blogtitle = strip_tags($_POST['blogtitle']);
+    $blog = strip_tags($_POST['blog']);
+    $photo = $_FILES['image']['name'];
+
+    $check = mysqli_query($conn, "SELECT * FROM blog WHERE blog_title = '$blogtitle' ");
+
+    $count = mysqli_num_rows($check);
+
+    if ($count < 1) {
+        move_uploaded_file($_FILES['image']['tmp_name'], "images/" . $_FILES['image']['name']);
+
+        $insertblog = mysqli_query($conn, "INSERT INTO blog(cat_id,first_name,last_name,image,blog_title,blog_content,date)VALUES('$category','$fname','$lname','$photo','$blogtitle','$blog', NOW())");
+
+        if ($insertblog) {
+            $msg = "Blog uploaded successfully! ";
+        } else {
+            $msg2 = "Blog uploaded  ";
+        }
+    } else {
+        //already exists
+        $msg2 = "Blog is already available!";
+    }
+}
+
+
 ?>
 
 <!doctype html>
@@ -36,7 +79,7 @@ if (isset($_GET['view_id'])) {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="Content-Language" content="en">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>WOLREC: Projects</title>
+    <title>Dronex: Upload Blog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" />
     <meta name="msapplication-tap-highlight" content="no">
     <link href="./main.css" rel="stylesheet">
@@ -466,135 +509,76 @@ if (isset($_GET['view_id'])) {
             </div>
             <div class="app-main__outer">
                 <div class="app-main__inner">
-                    <div class="app-page-title">
-                        <div class="page-title-wrapper">
-                            <div class="page-title-heading">
-                                <div class="page-title-icon">
-                                    <i class="pe-7s-display2 icon-gradient bg-sunny-morning">
-                                    </i>
-                                </div>
-                                <div>Projects
-                                    <div class="page-title-subheading">Add, view, edit and delete Vacancies.
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="page-title-actions">
-                                <a href="addvacancy.php" class="btn-shadow btn btn-info">
-                                    <span class="btn-icon-wrapper pr-2 opacity-7">
-                                        <i class="fa fa-upload fa-w-20"></i>
-                                    </span>
-                                    Add Vacancy
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <?php
-                            if (isset($msg)) { ?>
-                                <div class="alert alert-success alert-dismissible fade show mt-3 align-center" style="margin:auto" role="alert">
-                                    <?php echo $msg; ?>
-
-                                </div>
-                            <?php
-                            } elseif (isset($msg2)) { ?>
-                                <div class="alert alert-danger alert-dismissible fade show mt-3 align-center" style="margin:auto" role="alert">
-                                    <?php echo $msg2; ?>
-
-                                </div>
-                            <?php } else {
-                            } ?>
-                            <div class="main-card mb-3 card">
-                                <div class="card-header">Projects
-                                </div>
-                                <div class="table-responsive">
-                                    <table class="align-middle mb-0 table table-borderless table-striped table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>#</th>
-                                                <th>position</th>
-                                              
-                                                <th>location</th>
-                                                <th>closing data</th>
-                                                
-                                                <th>Created</th>
-
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php
-                                            //executing the query
-                                            @$page = $_GET["page"];
-
-                                            if ($page == "" || $page == "1") {
-
-                                                $page1 = 0;
-                                            } else {
-
-                                                $page1 = ($page * 5) - 5;
-                                            }
-                                            $query = "SELECT * FROM vacancies ORDER BY v_id desc limit $page1,5";
-
-                                            //running the query
-                                            $run = mysqli_query($conn, $query);
-
-
-                                            //fetching the data from the database
-                                            $index = 1;
-                                            while ($row = mysqli_fetch_array($run)) {
-
-
-                                            ?>
-                                                <tr>
-                                                    <td><?php echo $index; ?></td>
-                                                    <td>
-                                                        <?php echo $row['position'] ?>
-                                                    </td>
-
-                                                   
-                                                    <td><?php echo $row['location'] ?></td>
-                                                    <td><span class="badge badge-secondary"><?php echo date('d F Y', strtotime($row['closing_date'])); ?></span></td>
-                                                   
-                                                    <td><?php echo $row['created_date'] ?></td>
-                                                    <td>
-                                                        <div class="dropdown d-inline-block">
-                                                            <button type="button" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown" class="mb-2 mr-2 btn btn-sm btn-info"><span class="fas fa-ellipsis-h"></span></button>
-                                                            <div tabindex="-1" role="menu" aria-hidden="true" class="dropdown-menu">
-                                                                <a href="vacancy.php?view_id=<?php echo $row['v_id']; ?>" tabindex="0" class="dropdown-item">view</a>
-                                                                <a href="vacancy.php?edit_id=<?php echo $row['v_id']; ?>" tabindex="0" class="dropdown-item">Edit</a>
-                                                                <a href="vacancy.php?del_id=<?php echo $row['v_id']; ?>" tabindex="0" class="dropdown-item text-danger">Delete</a>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            <?php
-                                                $index++;
-                                            } ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                    <div class="tab-content">
+                        <div class="tab-pane tabs-animation fade show active" id="tab-content-0" role="tabpanel">
+                            <script>
+                                // Example starter JavaScript for disabling form submissions if there are invalid fields
+                                (function() {
+                                    'use strict';
+                                    window.addEventListener('load', function() {
+                                        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+                                        var forms = document.getElementsByClassName('needs-validation');
+                                        // Loop over them and prevent submission
+                                        var validation = Array.prototype.filter.call(forms, function(form) {
+                                            form.addEventListener('submit', function(event) {
+                                                if (form.checkValidity() === false) {
+                                                    event.preventDefault();
+                                                    event.stopPropagation();
+                                                }
+                                                form.classList.add('was-validated');
+                                            }, false);
+                                        });
+                                    }, false);
+                                })();
+                            </script>
                             <div class="main-card mb-3 card">
                                 <div class="card-body">
-                                    <nav class="" aria-label="Page navigation example">
-                                        <?php
-                                        $resl = mysqli_query($conn, "SELECT * FROM vacancies");
-                                        $cout = mysqli_num_rows($resl);
+                                    <h5 class="card-title">Change Password</h5>
+                                    <?php
+                                    if (isset($msg)) { ?>
+                                        <div class="alert alert-success alert-dismissible fade show mt-3 align-center" style="margin:auto" role="alert">
+                                            <?php echo $msg; ?>
 
-                                        $a = $cout / 5;
+                                        </div>
+                                    <?php
+                                    } elseif (isset($msg2)) { ?>
+                                        <div class="alert alert-danger alert-dismissible fade show mt-3 align-center" style="margin:auto" role="alert">
+                                            <?php echo $msg1; ?>
 
-                                        $a = ceil($a);
-                                        ?>
+                                        </div>
+                                    <?php } else {
+                                    } ?>
 
-                                        <ul class="pagination">
-                                            <li class="page-item"><a href="javascript:void(0);" class="page-link" aria-label="Previous"><span aria-hidden="true">«</span><span class="sr-only">Previous</span></a></li>
-                                            <?php for ($b = 1; $b <= $a; $b++) {  ?>
-                                                <li class="page-item"><a href="projects.php?page=<?php echo $b; ?>" class="page-link"><?php echo $b . " "; ?></a></li>
-                                            <?php } ?>
-                                            <li class="page-item"><a href="javascript:void(0);" class="page-link" aria-label="Next"><span aria-hidden="true">»</span><span class="sr-only">Next</span></a></li>
-                                        </ul>
-                                    </nav>
+                                    <form class="needs-validation" novalidate method="POST" action="profile.php" enctype="multipart/form-data">
+                                        <div class="form-row">
+
+
+                                            <div class="col-md-12 mb-3">
+                                                <label for="validationTooltip04">Current Password</label>
+                                                <input type="password" name="oldpassword" class="form-control" id="validationTooltip04" required>
+                                                <div class="invalid-tooltip">
+                                                    Change Password
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12 mb-3">
+                                                <label for="validationTooltip04">New Password</label>
+                                                <input type="password" name="password1" class="form-control" id="validationTooltip04" required>
+                                                <div class="invalid-tooltip">
+                                                    Change Password
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12 mb-3">
+                                                <label for="validationTooltip04">Repeat Password</label>
+                                                <input type="password" name="password2" class="form-control" id="validationTooltip04" required>
+                                                <div class="invalid-tooltip">
+                                                    Change Password
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+                                        <button class="mt-2 btn btn-primary col-6" type="submit" name="changepassword">Change</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>

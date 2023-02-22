@@ -2,32 +2,41 @@
 
 include('connection.php');
 
-if (isset($_GET['view_id'])) {
-    $_SESSION['view_id'] = $_GET['view_id'];
-    header("location: viewvacancy.php");
-} elseif (isset($_GET['edit_id'])) {
-    $_SESSION['edit_id'] = $_GET['edit_id'];
-    header("location: editvacancy.php");
-} elseif (isset($_GET['del_id'])) {
+
+// Adding categories
+if (isset($_POST['add'])) {
+    $name = strip_tags($_POST['name']);
+
+    // $search = "SELECT * FROM `category` WHERE `cat_name` = '$name'";
+    $result = mysqli_query($conn, "SELECT * FROM `category` WHERE `cat_name` = '$name'");
+
+    $count = mysqli_num_rows($result);
+
+    if ($count < 1) {
+        $insert = "INSERT INTO category(`cat_name`, `date`) values ('$name', NOW())";
+
+        if (mysqli_query($conn, $insert)) {
+            $msg = "Category uploaded successfully! ";
+        } else {
+            $msg2 = "Couldn't upload category!";
+        }
+    } else {
+        $msg2 = "category is already available!";
+    }
+}
+
+//deleting categories
+if (isset($_GET['del_id'])) {
     $id =  $_GET['del_id'];
-
-    $query = "SELECT * FROM `vacancies` WHERE `v_id` = $id";
-    //running the query
-    // $run = mysqli_query($conn, $query);
-    // $row = mysqli_fetch_assoc($run);
-    // $image = $row['image'];
-    // unlink("images/$image");
-
-    $insert = "DELETE FROM `vacancies` WHERE `v_id` = $id";
+    $insert = "DELETE FROM `category` WHERE `cat_id` = $id";
 
     if (mysqli_query($conn, $insert)) {
-        $msg = "vacancy deleted! ";
+        $msg = "Category deleted! ";
     } else {
-        $msg2 = "Couldn't delete Vacancy!";
+        $msg2 = "Couldn't delete category!";
     }
 }
 ?>
-
 <!doctype html>
 <html lang="en">
 
@@ -36,7 +45,7 @@ if (isset($_GET['view_id'])) {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="Content-Language" content="en">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>WOLREC: Projects</title>
+    <title>Dronex: Categories</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" />
     <meta name="msapplication-tap-highlight" content="no">
     <link href="./main.css" rel="stylesheet">
@@ -77,6 +86,15 @@ if (isset($_GET['view_id'])) {
                 </span>
             </div>
             <div class="app-header__content">
+                <!-- <div class="app-header-left">
+                    <div class="search-wrapper">
+                        <div class="input-holder">
+                            <input type="text" class="search-input" placeholder="Type to search">
+                            <button class="search-icon"><span></span></button>
+                        </div>
+                        <button class="close"></button>
+                    </div>
+                </div> -->
                 <div class="app-header-right">
                     <div class="header-btn-lg pr-0">
                         <div class="widget-content p-0">
@@ -88,7 +106,7 @@ if (isset($_GET['view_id'])) {
                                             <i class="fa fa-angle-down ml-2 opacity-8"></i>
                                         </a>
                                         <div tabindex="-1" role="menu" aria-hidden="true" class="dropdown-menu dropdown-menu-right">
-                                            <button href="#" tabindex="0" class="dropdown-item"><?php echo $user; ?></button>
+                                        <button href="#" tabindex="0" class="dropdown-item"><?php echo $user; ?></button>
                                             <a href="profile.php" tabindex="0" class="dropdown-item">User Account</a>
                                             <a href="logout.php" tabindex="0" class="dropdown-item text-danger">Logout</a>
                                         </div>
@@ -387,7 +405,7 @@ if (isset($_GET['view_id'])) {
         <div class="app-main">
             <div class="app-sidebar sidebar-shadow">
                 <div class="app-header__logo">
-                    <!-- <div class="logo-src"></div> -->
+                    <div class="logo-src"></div>
                     <div class="header__pane ml-auto">
                         <div>
                             <button type="button" class="hamburger close-sidebar-btn hamburger--elastic" data-class="closed-sidebar">
@@ -470,56 +488,52 @@ if (isset($_GET['view_id'])) {
                         <div class="page-title-wrapper">
                             <div class="page-title-heading">
                                 <div class="page-title-icon">
-                                    <i class="pe-7s-display2 icon-gradient bg-sunny-morning">
+                                    <i class="pe-7s-news-paper icon-gradient bg-sunny-morning">
                                     </i>
                                 </div>
-                                <div>Projects
-                                    <div class="page-title-subheading">Add, view, edit and delete Vacancies.
+                                <div>Categories
+                                    <div class="page-title-subheading">Add and delete categories.
                                     </div>
                                 </div>
                             </div>
                             <div class="page-title-actions">
-                                <a href="addvacancy.php" class="btn-shadow btn btn-info">
+                                <button type="button" class="btn mr-2 mb-2 btn-info" data-toggle="modal" data-target=".bd-example-modal-sm">
                                     <span class="btn-icon-wrapper pr-2 opacity-7">
                                         <i class="fa fa-upload fa-w-20"></i>
                                     </span>
-                                    Add Vacancy
-                                </a>
+                                    Add Category
+                                </button>
                             </div>
                         </div>
                     </div>
                     <div class="row">
+                        <?php
+                        if (isset($msg)) { ?>
+                            <div class="alert alert-success alert-dismissible fade show mt-3 align-center" style="margin:auto" role="alert">
+                                <?php echo $msg; ?>
+                                
+                            </div>
+                        <?php
+                        } elseif (isset($msg2)) { ?>
+                            <div class="alert alert-danger alert-dismissible fade show mt-3 align-center" style="margin:auto" role="alert">
+                                <?php echo $msg2; ?>
+                               
+                            </div>
+                        <?php } else {
+                        } ?>
+
                         <div class="col-md-12">
-                            <?php
-                            if (isset($msg)) { ?>
-                                <div class="alert alert-success alert-dismissible fade show mt-3 align-center" style="margin:auto" role="alert">
-                                    <?php echo $msg; ?>
-
-                                </div>
-                            <?php
-                            } elseif (isset($msg2)) { ?>
-                                <div class="alert alert-danger alert-dismissible fade show mt-3 align-center" style="margin:auto" role="alert">
-                                    <?php echo $msg2; ?>
-
-                                </div>
-                            <?php } else {
-                            } ?>
                             <div class="main-card mb-3 card">
-                                <div class="card-header">Projects
+                                <div class="card-header">Categories
                                 </div>
                                 <div class="table-responsive">
                                     <table class="align-middle mb-0 table table-borderless table-striped table-hover">
                                         <thead>
                                             <tr>
-                                                <th>#</th>
-                                                <th>position</th>
-                                              
-                                                <th>location</th>
-                                                <th>closing data</th>
-                                                
-                                                <th>Created</th>
-
-                                                <th>Actions</th>
+                                                <th class="text-center">#</th>
+                                                <th>Name</th>
+                                                <th class="text-center">Date</th>
+                                                <th class="text-center">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -534,38 +548,20 @@ if (isset($_GET['view_id'])) {
 
                                                 $page1 = ($page * 5) - 5;
                                             }
-                                            $query = "SELECT * FROM vacancies ORDER BY v_id desc limit $page1,5";
+                                            $query = "SELECT * FROM category ORDER BY cat_id desc limit $page1,5";
 
                                             //running the query
                                             $run = mysqli_query($conn, $query);
-
-
                                             //fetching the data from the database
                                             $index = 1;
                                             while ($row = mysqli_fetch_array($run)) {
-
-
                                             ?>
                                                 <tr>
-                                                    <td><?php echo $index; ?></td>
-                                                    <td>
-                                                        <?php echo $row['position'] ?>
-                                                    </td>
-
-                                                   
-                                                    <td><?php echo $row['location'] ?></td>
-                                                    <td><span class="badge badge-secondary"><?php echo date('d F Y', strtotime($row['closing_date'])); ?></span></td>
-                                                   
-                                                    <td><?php echo $row['created_date'] ?></td>
-                                                    <td>
-                                                        <div class="dropdown d-inline-block">
-                                                            <button type="button" aria-haspopup="true" aria-expanded="false" data-toggle="dropdown" class="mb-2 mr-2 btn btn-sm btn-info"><span class="fas fa-ellipsis-h"></span></button>
-                                                            <div tabindex="-1" role="menu" aria-hidden="true" class="dropdown-menu">
-                                                                <a href="vacancy.php?view_id=<?php echo $row['v_id']; ?>" tabindex="0" class="dropdown-item">view</a>
-                                                                <a href="vacancy.php?edit_id=<?php echo $row['v_id']; ?>" tabindex="0" class="dropdown-item">Edit</a>
-                                                                <a href="vacancy.php?del_id=<?php echo $row['v_id']; ?>" tabindex="0" class="dropdown-item text-danger">Delete</a>
-                                                            </div>
-                                                        </div>
+                                                    <td class="text-center text-muted"><?php echo $index; ?>.</td>
+                                                    <td class="text-center" style="text-transform: capitalize;"><?php echo $row['cat_name'] ?></td>
+                                                    <td class="text-center"><span class="badge badge-secondary"><?php echo date('d F Y',strtotime($row['date'])); ?></span></td>
+                                                    <td class="text-center">
+                                                        <a href="categories.php?del_id=<?php echo $row['cat_id'] ?>" class="btn btn-outline-danger btn-transition"><i class="pe-7s-trash" style="font-size:large;"></i></a>
                                                     </td>
                                                 </tr>
                                             <?php
@@ -579,7 +575,7 @@ if (isset($_GET['view_id'])) {
                                 <div class="card-body">
                                     <nav class="" aria-label="Page navigation example">
                                         <?php
-                                        $resl = mysqli_query($conn, "SELECT * FROM vacancies");
+                                        $resl = mysqli_query($conn, "SELECT * FROM category");
                                         $cout = mysqli_num_rows($resl);
 
                                         $a = $cout / 5;
@@ -590,7 +586,7 @@ if (isset($_GET['view_id'])) {
                                         <ul class="pagination">
                                             <li class="page-item"><a href="javascript:void(0);" class="page-link" aria-label="Previous"><span aria-hidden="true">«</span><span class="sr-only">Previous</span></a></li>
                                             <?php for ($b = 1; $b <= $a; $b++) {  ?>
-                                                <li class="page-item"><a href="projects.php?page=<?php echo $b; ?>" class="page-link"><?php echo $b . " "; ?></a></li>
+                                                <li class="page-item"><a href="categories.php?page=<?php echo $b; ?>" class="page-link"><?php echo $b . " "; ?></a></li>
                                             <?php } ?>
                                             <li class="page-item"><a href="javascript:void(0);" class="page-link" aria-label="Next"><span aria-hidden="true">»</span><span class="sr-only">Next</span></a></li>
                                         </ul>
@@ -643,6 +639,57 @@ if (isset($_GET['view_id'])) {
                 </div>
             </div>
             <script src="http://maps.google.com/maps/api/js?sensor=true"></script>
+        </div>
+    </div>
+    <script>
+        // Example starter JavaScript for disabling form submissions if there are invalid fields
+        (function() {
+            'use strict';
+            window.addEventListener('load', function() {
+                // Fetch all the forms we want to apply custom Bootstrap validation styles to
+                var forms = document.getElementsByClassName('needs-validation');
+                // Loop over them and prevent submission
+                var validation = Array.prototype.filter.call(forms, function(form) {
+                    form.addEventListener('submit', function(event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+    </script>
+    <!-- Small modal -->
+
+    <div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Add Category</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        <div class="form-row">
+                            <div class="col-md-12 mb-3">
+                                <label for="validationTooltip01">Category Name</label>
+                                <input type="text" name="name" class="form-control" id="validationTooltip01" placeholder="Type here ......." required>
+                                <div class="invalid-tooltip">
+                                    Enter the category name, please!
+                                </div>
+                            </div>
+                        </div>
+                        <button class="mt-2 btn btn-primary" type="submit" name="add">add</button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
         </div>
     </div>
     <script type="text/javascript" src="./assets/scripts/main.js"></script>
